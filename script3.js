@@ -42,7 +42,7 @@ if (JSON.parse(localStorage.getItem('indiceSalvo1')) > 0) {
 { link: "https://www.youtube.com/embed/uuGScjfEGqw?t=1960", nome: "KVSH ", style: "Deephouse", nota: "" },
 { link: "https://www.youtube.com/embed/w8xQnshEIKg?t=907", nome: "Layla Benitez ", style: "Indie/Dance", nota: "" },
 { link: "https://www.youtube.com/embed/6GHiYo3530o?t=4154", nome: "Liquid Soul", style: "Psy Trance", nota: "" },
-{ link: "https://www.youtube.com/embed/w3yRKiJVqk?t=491", nome: "Liu", style: "Deephouse", nota: "" },
+{ link: "https://www.youtube.com/embed/a4g96HW1VuA?t=160", nome: "Liu", style: "Deephouse", nota: "" },
 { link: "https://www.youtube.com/embed/w3yRKiJ9Vqk?t=491", nome: "Lost Frequencies", style: "Tropical House/DownTempo", nota: "" },
 { link: "https://www.youtube.com/embed/AhIElZvdRjY?t=1597", nome: "Mandy", style: "HardStyle", nota: "" },
 { link: "https://www.youtube.com/embed/TPYF8Ni8EMI?t=869", nome: "MC STRETCH ", style: "Hard Trance", nota: "" },

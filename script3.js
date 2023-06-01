@@ -94,7 +94,8 @@ document.querySelector('#proximo').addEventListener('click', () => {
 function atualizarTabela() {
   videos.sort((a, b) => b.nota - a.nota);
   tabelaNotas.innerHTML = '';
-  for (const video of videos) {
+  for (let i = 0; i < videos.length; i++) {
+    const video = videos[i];
     document.getElementById("nota").focus();
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -111,17 +112,18 @@ function atualizarTabela() {
         atualizarTabela();
       }
     });
-    
-     tr.addEventListener('click', () => {
+
+    tr.addEventListener('click', () => {
       indice = i;
       meuIframe.src = videos[indice].link;
       videoInfo.textContent = `${videos[indice].nome} - ${videos[indice].style}`;
     });
+
     tr.insertCell().appendChild(btn);
     tabelaNotas.appendChild(tr);
   }
-  
 }
+  
 
   document.querySelector('#resetar').addEventListener('click', () => {
     indice = 0

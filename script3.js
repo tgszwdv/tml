@@ -53,7 +53,7 @@ if (JSON.parse(localStorage.getItem('indiceSalvo1')) > 0) {
 { link: "https://www.youtube.com/embed/7DE0TAz5xbg?t=1480", nome: "Sebastian Ingrosso", style: "House/Dance/Progressive House", nota: "" },
 { link: "https://www.youtube.com/embed/ErSIEdbe1DU?t=2812", nome: "Steve Aoki", style: "EDM/Progressive House/Big Room/Future Bass", nota: "" },
 { link: "https://www.youtube.com/embed/iIQVr40Mnw4?t=787", nome: "Sub Zero Project", style: "Drum And Bass/Hardstyle", nota: "" },
-{ link: "https://www.youtube.com/embed/7iP5zNyXtnw?t=2006", nome: "Vintage Culture", style: "Deephouse/Future House/Trance/Tropical House", nota: "" }
+{ link: "https://www.youtube.com/embed/YgOmUZx-pL4", nome: "Vintage Culture", style: "Deephouse/Future House/Trance/Tropical House", nota: "" }
   ];
 }
 

@@ -2,9 +2,9 @@
 let indice = 0;
 let videos;
 
-if (JSON.parse(localStorage.getItem('indiceSalvo')) > 0) {
-  videos = JSON.parse(localStorage.getItem('notasSalvas'));
-  indice = JSON.parse(localStorage.getItem('indiceSalvo'));
+if (JSON.parse(localStorage.getItem('indiceSalvo1')) > 0) {
+  videos = JSON.parse(localStorage.getItem('notasSalvas1'));
+  indice = JSON.parse(localStorage.getItem('indiceSalvo1'));
   //console.log('to no if')
    if (indice >= 39 ) {
     indice = 0;

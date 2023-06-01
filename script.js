@@ -15,7 +15,7 @@ if (JSON.parse(localStorage.getItem('indiceSalvo')) > 0) {
   //console.log('to no else')
   videos = [
 { link: "https://www.youtube.com/embed/qrOCRqYjebI?t=415", nome: "Acraze", style: "Deephouse", nota: "" },
-{ link: "https://www.youtube.com/live/Gy0RM9yjyhM?feature=share&t=1044", nome: "Âme ", style: "House/Techno", nota: "" },
+{ link: "https://youtu.be/Gy0RM9yjyhM&t=1044s0", nome: "Âme ", style: "House/Techno", nota: "" },
 { link: "https://youtu.be/yD9OGm-oQPI?t=2510", nome: "ANNA ", style: "Dance/EDM", nota: "" },
 { link: "https://youtu.be/E-CdJFlKyNc?t=1865", nome: "Aura Vortex", style: "Psy Trance", nota: "" },
 { link: "https://youtu.be/taJKkbv0jq0?t=1637", nome: "B Jones", style: "PopHouse/Trance", nota: "" },

@@ -51,6 +51,7 @@ if (JSON.parse(localStorage.getItem('indiceSalvo')) > 0) {
 { link: "https://youtu.be/7iP5zNyXtnw?t=2006", nome: "Vintage Culture", style: "Deephouse/Future House/Trance/Tropical House", nota: "" }
   ];
 }
+
 const meuIframe = document.querySelector('#meu-iframe');
 meuIframe.src = videos[indice].link;
 
@@ -81,17 +82,20 @@ document.querySelector('#proximo').addEventListener('click', () => {
   notaInput.value = '';
 });
 
+// Função para atualizar a tabela de notas
 function atualizarTabela() {
   videos.sort((a, b) => b.nota - a.nota);
   tabelaNotas.innerHTML = '';
-  for (const video of videos) {
+  for (let i = 0; i < videos.length; i++) {
+    const video = videos[i];
+    document.getElementById("nota").focus();
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${video.nome}</td>
       <td>${video.nota}</td>
       <td>${video.style}</td>
     `;
-    const btn = document.createElement('button');
+    const btn = document.createElement('button2');
     btn.textContent = 'Editar';
     btn.addEventListener('click', () => {
       const novaNota = prompt('Insira a nova nota para o vídeo:');
@@ -100,13 +104,18 @@ function atualizarTabela() {
         atualizarTabela();
       }
     });
+
+    tr.addEventListener('click', () => {
+      indice = i;
+      meuIframe.src = videos[indice].link;
+      videoInfo.textContent = `${videos[indice].nome} - ${videos[indice].style}`;
+    });
+
     tr.insertCell().appendChild(btn);
     tabelaNotas.appendChild(tr);
-    tr.addEventListener('click', () => {
-      atualizarVideo(video.link);
-    });
   }
 }
+
 
 document.querySelector('#resetar').addEventListener('click', () => {
   indice = 0;
@@ -117,14 +126,26 @@ document.querySelector('#resetar').addEventListener('click', () => {
   localStorage.setItem('notasSalvas', JSON.stringify(videos));
 });
 
-function exportarTabela() {
-  // ...
+// Função para atualizar o vídeo no iframe com base no índice
+function atualizarVideo() {
+  meuIframe.src = videos[indice].link;
 }
 
-document.querySelector('#exportar').addEventListener('click', exportarTabela);
+// Adiciona um event listener às linhas da tabela
+tabelaNotas.addEventListener('click', (event) => {
+  // Verifica se o elemento clicado é uma linha (tr)
+  if (event.target.tagName === 'TR') {
+    // Obtém o índice da linha clicada
+    const index = Array.from(tabelaNotas.children).indexOf(event.target);
+    
+    // Verifica se o índice é válido
+    if (index >= 0 && index < videos.length) {
+      indice = index; // Atualiza o índice com o valor da linha clicada
+      atualizarVideo(); // Atualiza o vídeo no iframe com base no índice
+      videoInfo.textContent = `${videos[indice].nome} - ${videos[indice].style}`;
+    }
+  }
+});
 
-function atualizarVideo(link) {
-  meuIframe.src = link;
-}
-
+// Inicializa a tabela de notas
 atualizarTabela();

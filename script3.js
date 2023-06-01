@@ -74,13 +74,13 @@ document.querySelector('#proximo').addEventListener('click', () => {
   videos[indice].nota = nota;
   atualizarTabela();
   indice++;
-  localStorage.setItem('notasSalvas', JSON.stringify(videos));
-  localStorage.setItem('indiceSalvo', JSON.stringify(indice));
+  localStorage.setItem('notasSalvas1', JSON.stringify(videos));
+  localStorage.setItem('indiceSalvo1', JSON.stringify(indice));
   if (indice >= videos.length) {
     alert('Você avaliou todos os vídeos!');
     //
     indice = 0;
-    JSON.parse(localStorage.getItem('indiceSalvo')) = indice ;
+    JSON.parse(localStorage.getItem('indiceSalvo1')) = indice ;
     //
     return;
   }
@@ -129,7 +129,7 @@ function atualizarTabela() {
       video.nota = "";
     }
     atualizarTabela();
-    localStorage.setItem('notasSalvas', JSON.stringify(videos));
+    localStorage.setItem('notasSalvas1', JSON.stringify(videos));
   });
 
 function exportarTabela() {

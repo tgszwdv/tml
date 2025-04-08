@@ -94,7 +94,7 @@ body {
   border-right: none;
 }
 
-/* Estilo para as linhas verticais na tabela mobile */
+
 .card-item {
   grid-template-columns: 1fr 1fr;
   border-right: 1px solid rgba(0, 255, 255, 0.3);
@@ -130,7 +130,7 @@ body {
 #share-modal img {
   filter: drop-shadow(0 0 2px rgba(0, 255, 255, 0.5));
 }
-/* Estilo para o modal de edição */
+
 #edit-modal {
   transition: opacity 0.3s ease;
 }
@@ -148,19 +148,19 @@ body {
   transform: translateY(0);
   opacity: 1;
 }
-/* Adicione isso no seu estilo CSS */
+
 #notification-modal {
-  z-index: 100; /* Maior que o modal de edição */
+  z-index: 100; 
 }
 
 #edit-modal {
-  z-index: 50; /* Menor que o modal de notificação */
+  z-index: 50; 
 }
 
 #confirm-modal {
-  z-index: 100; /* Igual ao modal de notificação */
+  z-index: 100;
 }
 
 #share-modal {
-  z-index: 100; /* Igual ao modal de notificação */
+  z-index: 100; 
 }

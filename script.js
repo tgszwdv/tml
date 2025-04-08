@@ -806,7 +806,7 @@ function setupEventListeners() {
   setupSorting();
 }
 
-function showNotification(title, message, duration = 3000) {
+function showNotification(title, message, duration = 8000000) {
   // Fecha qualquer notificação existente primeiro
   const existingModals = document.querySelectorAll(
     "#notification-modal:not(.hidden)"

@@ -1,0 +1,166 @@
+body {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    url("https://raw.githubusercontent.com/tgszwdv/tgszwdv.github.io/main/bkg.avif");
+  background-size: cover;
+  background-position: center;
+  font-family: "Orbitron", sans-serif;
+}
+
+.card-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.card-item:hover {
+  background-color: rgba(0, 255, 255, 0.05);
+}
+
+.card-label {
+  font-weight: bold;
+  color: rgba(0, 255, 255, 0.8);
+}
+
+.card-value {
+  word-break: break-word;
+}
+
+.sortable-header {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sortable-header:hover {
+  background-color: rgba(0, 255, 255, 0.2);
+}
+
+@media (min-width: 768px) {
+  .table-desktop {
+    display: table;
+  }
+  .table-mobile {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .table-desktop {
+    display: none;
+  }
+  .table-mobile {
+    display: block;
+  }
+}
+
+#notification-modal,
+#confirm-modal {
+  transition: opacity 0.3s ease;
+}
+
+#notification-modal > div:last-child,
+#confirm-modal > div:last-child {
+  transform: translateY(20px);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#notification-modal:not(.hidden),
+#confirm-modal:not(.hidden) {
+  opacity: 1;
+}
+
+#notification-modal:not(.hidden) > div:last-child,
+#confirm-modal:not(.hidden) > div:last-child {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Estilo para as linhas verticais na tabela desktop */
+.table-desktop table {
+  border-collapse: collapse;
+}
+
+.table-desktop th,
+.table-desktop td {
+  border-right: 1px solid rgba(0, 255, 255, 0.3);
+  padding: 0.5rem;
+}
+
+.table-desktop th:last-child,
+.table-desktop td:last-child {
+  border-right: none;
+}
+
+/* Estilo para as linhas verticais na tabela mobile */
+.card-item {
+  grid-template-columns: 1fr 1fr;
+  border-right: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.card-item > div:nth-child(even) {
+  border-right: none;
+}
+
+.card-item > div {
+  padding: 0.25rem;
+}
+
+.table-desktop th {
+  border-bottom: 1px solid rgba(0, 255, 255, 0.5);
+  border-right: 1px solid rgba(0, 255, 255, 0.5);
+  padding: 0.75rem 0.5rem;
+}
+
+#share-modal a,
+#share-modal button {
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  margin: 4px 0;
+  transition: all 0.2s;
+}
+
+#share-modal a:hover,
+#share-modal button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.2);
+}
+
+#share-modal img {
+  filter: drop-shadow(0 0 2px rgba(0, 255, 255, 0.5));
+}
+/* Estilo para o modal de edição */
+#edit-modal {
+  transition: opacity 0.3s ease;
+}
+
+#edit-modal > div:last-child {
+  transform: translateY(20px);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#edit-modal:not(.hidden) {
+  opacity: 1;
+}
+
+#edit-modal:not(.hidden) > div:last-child {
+  transform: translateY(0);
+  opacity: 1;
+}
+/* Adicione isso no seu estilo CSS */
+#notification-modal {
+  z-index: 100; /* Maior que o modal de edição */
+}
+
+#edit-modal {
+  z-index: 50; /* Menor que o modal de notificação */
+}
+
+#confirm-modal {
+  z-index: 100; /* Igual ao modal de notificação */
+}
+
+#share-modal {
+  z-index: 100; /* Igual ao modal de notificação */
+}

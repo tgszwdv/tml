@@ -1,0 +1,3056 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TML - Avaliação de Artistas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-image: linear-gradient(
+            rgba(0, 0, 0, 0.6),
+            rgba(0, 0, 0, 0.6)
+          ),
+          url("https://raw.githubusercontent.com/tgszwdv/tgszwdv.github.io/main/bkg.avif");
+        background-size: cover;
+        background-position: center;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .card-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .card-item:hover {
+        background-color: rgba(0, 255, 255, 0.05);
+      }
+
+      .card-label {
+        font-weight: bold;
+        color: rgba(0, 255, 255, 0.8);
+      }
+
+      .card-value {
+        word-break: break-word;
+      }
+
+      .sortable-header {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .sortable-header:hover {
+        background-color: rgba(0, 255, 255, 0.2);
+      }
+
+      @media (min-width: 768px) {
+        .table-desktop {
+          display: table;
+        }
+        .table-mobile {
+          display: none;
+        }
+      }
+
+      @media (max-width: 767px) {
+        .table-desktop {
+          display: none;
+        }
+        .table-mobile {
+          display: block;
+        }
+      }
+      #notification-modal,
+      #confirm-modal {
+        transition: opacity 0.3s ease;
+      }
+
+      #notification-modal > div:last-child,
+      #confirm-modal > div:last-child {
+        transform: translateY(20px);
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      #notification-modal:not(.hidden),
+      #confirm-modal:not(.hidden) {
+        opacity: 1;
+      }
+
+      #notification-modal:not(.hidden) > div:last-child,
+      #confirm-modal:not(.hidden) > div:last-child {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .table-desktop table {
+        border-collapse: collapse;
+      }
+
+      .table-desktop th,
+      .table-desktop td {
+        border-right: 1px solid rgba(0, 255, 255, 0.3);
+        padding: 0.5rem;
+      }
+
+      .table-desktop th:last-child,
+      .table-desktop td:last-child {
+        border-right: none;
+      }
+
+      .card-item {
+        grid-template-columns: 1fr 1fr;
+        border-right: 1px solid rgba(0, 255, 255, 0.3);
+      }
+
+      .card-item > div:nth-child(even) {
+        border-right: none;
+      }
+
+      .card-item > div {
+        padding: 0.25rem;
+      }
+      .table-desktop th {
+        border-bottom: 1px solid rgba(0, 255, 255, 0.5);
+        border-right: 1px solid rgba(0, 255, 255, 0.5);
+        padding: 0.75rem 0.5rem;
+      }
+      #share-modal a,
+      #share-modal button {
+        border: 1px solid rgba(0, 255, 255, 0.3);
+        margin: 4px 0;
+        transition: all 0.2s;
+      }
+
+      #share-modal a:hover,
+      #share-modal button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0, 255, 255, 0.2);
+      }
+
+      #share-modal img {
+        filter: drop-shadow(0 0 2px rgba(0, 255, 255, 0.5));
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col items-center text-white px-4 py-8">
+    <h1
+      class="text-4xl md:text-5xl text-center mb-6 drop-shadow-[0_0_6px_rgba(0,255,255,0.8)]"
+    >
+      TML - Avaliação de Artistas
+    </h1>
+    <div class="w-full">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col items-center">
+          <div class="relative group">
+            <span
+              class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 text-2xl font-bold tracking-wider"
+            >
+              @tgszwdv
+            </span>
+            <span
+              class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-300 group-hover:w-full"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="video-container"
+      class="mb-6 w-full max-w-[720px] rounded-xl border border-cyan-400 backdrop-blur-sm bg-white/10 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+    >
+      <iframe
+        id="meu-iframe"
+        class="w-full aspect-video rounded-xl"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe>
+    </div>
+
+    <p
+      id="video-info"
+      class="text-lg md:text-xl text-center mb-6 drop-shadow-[0_0_6px_rgba(0,255,255,0.8)]"
+    ></p>
+
+    <div id="artist-image-container" class="flex justify-center mb-6">
+      <img
+        id="artist-image"
+        class="w-32 h-32 rounded-full object-cover border-2 border-cyan-400 shadow-[0_0_15px_rgba(0,255,255,0.5)]"
+        src=""
+        alt="Artist image"
+      />
+    </div>
+
+    <!-- Filtros por dia -->
+    <div class="flex flex-wrap justify-center gap-2 mb-4">
+      <button
+        data-day="ALL"
+        class="day-filter-btn bg-purple-500/20 hover:bg-purple-400/30 text-white border border-purple-300 px-3 py-1 rounded-lg"
+      >
+        Todos
+      </button>
+      <button
+        data-day="FRIDAY"
+        class="day-filter-btn bg-cyan-500/20 hover:bg-cyan-400/30 text-white border border-cyan-300 px-3 py-1 rounded-lg"
+      >
+        Sexta
+      </button>
+      <button
+        data-day="SATURDAY"
+        class="day-filter-btn bg-blue-500/20 hover:bg-blue-400/30 text-white border border-blue-300 px-3 py-1 rounded-lg"
+      >
+        Sábado
+      </button>
+      <button
+        data-day="SUNDAY"
+        class="day-filter-btn bg-green-500/20 hover:bg-green-400/30 text-white border border-green-300 px-3 py-1 rounded-lg"
+      >
+        Domingo
+      </button>
+    </div>
+
+    <div
+      class="flex flex-wrap items-center justify-center gap-4 mb-6 backdrop-blur-sm bg-white/10 px-4 py-4 rounded-xl border border-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+    >
+      <button
+        id="exportar"
+        class="bg-cyan-400/20 hover:bg-cyan-300/20 text-white border border-cyan-300 px-4 py-2 rounded-lg shadow-lg backdrop-blur-md transition"
+      >
+        Exportar Tabela
+      </button>
+
+      <label for="nota" class="text-white">Nota:</label>
+      <input
+        type="number"
+        id="nota"
+        min="0"
+        max="10"
+        step="0.1"
+        class="w-20 text-center text-white bg-white/10 border-b-2 border-cyan-300 focus:border-cyan-400 outline-none py-1 backdrop-blur-md"
+        placeholder="0-10"
+      />
+
+      <button
+        id="proximo"
+        class="bg-cyan-400/20 hover:bg-cyan-300/20 text-white border border-cyan-300 px-4 py-2 rounded-lg shadow-lg backdrop-blur-md transition"
+      >
+        Próximo vídeo
+      </button>
+
+      <button
+        id="resetar"
+        class="bg-red-500/30 hover:bg-red-400/30 text-white border border-red-300 px-4 py-2 rounded-lg shadow-lg backdrop-blur-md transition"
+      >
+        Resetar Notas
+      </button>
+
+      <button
+        id="compartilhar"
+        class="bg-green-500/20 hover:bg-green-400/20 text-white border border-green-300 px-4 py-2 rounded-lg shadow-lg backdrop-blur-md transition flex items-center gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Tabela para desktop -->
+    <div
+      class="table-desktop overflow-x-auto w-full max-w-5xl backdrop-blur-md bg-white/10 border border-cyan-400 rounded-xl shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+    >
+      <table class="w-full text-sm text-white text-center">
+        <thead class="bg-cyan-400/20 text-white">
+          <tr>
+            <th id="headerNome" class="p-2 sortable-header">Artista</th>
+            <th id="headerNota" class="p-2 sortable-header">Nota</th>
+            <th id="headerStyle" class="p-2 sortable-header">Gênero</th>
+            <th id="headerPalco" class="p-2 sortable-header">Palco</th>
+            <th id="headerHorario" class="p-2 sortable-header">Horário</th>
+            <th class="p-2">Opção</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-notas-desktop" class="divide-y divide-cyan-400/50">
+          <!-- preenchido dinamicamente -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tabela para mobile -->
+    <div
+      id="tabela-notas-mobile"
+      class="table-mobile w-full max-w-5xl backdrop-blur-md bg-white/10 border border-cyan-400 rounded-xl shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+    >
+      <!-- preenchido dinamicamente -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+      // Constantes e configurações
+      const VIDEO_STORAGE_KEY = "tmlNotas";
+      const INDEX_STORAGE_KEY = "indiceTml";
+      const CURRENT_DAY_FILTER = "currentDayFilter";
+
+      // Elementos do DOM
+      const elements = {
+        iframe: document.querySelector("#meu-iframe"),
+        tabelaDesktop: document.querySelector("#tabela-notas-desktop"),
+        tabelaMobile: document.querySelector("#tabela-notas-mobile"),
+        videoInfo: document.getElementById("video-info"),
+        proximoBtn: document.querySelector("#proximo"),
+        resetarBtn: document.querySelector("#resetar"),
+        exportarBtn: document.querySelector("#exportar"),
+        notaInput: document.querySelector("#nota"),
+        headers: {
+          nome: document.getElementById("headerNome"),
+          nota: document.getElementById("headerNota"),
+          palco: document.getElementById("headerPalco"),
+          horario: document.getElementById("headerHorario"),
+          style: document.getElementById("headerStyle"),
+        },
+      };
+
+      // Estado da aplicação
+      let state = {
+        currentIndices: { ALL: 0, FRIDAY: 0, SATURDAY: 0, SUNDAY: 0 },
+        currentDayFilter: "ALL",
+        videos: getInitialVideos(),
+        currentFilteredVideos: [],
+      };
+
+      // Funções de estado
+      function getInitialVideos() {
+        return [
+          {
+            id: "1906669143",
+            name: "David Guetta",
+            artists: [{ id: "1536160714", name: "David Guetta" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1900870272",
+            name: "Maddix",
+            artists: [
+              {
+                id: "1321229552",
+                name: "Maddix",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/31853993-Maddix - Credits Sven Scholten (HR)-2 (1).jpg",
+                instagram: "https://www.instagram.com/maddixmusic/",
+                spotify:
+                  "https://open.spotify.com/artist/0RMeG9M8QFzss9bAbq99KA?si=Pabt3_odR76tridkVn6u-Q",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1896404514",
+            name: "Vegas b2b Blazy",
+            artists: [{ id: "1896405516", name: "Vegas b2b Blazy" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1895093600",
+            name: "Odymel",
+            artists: [
+              {
+                id: "1536171891",
+                name: "Odymel",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/96823576-Odymel-img-2025.jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1895081836",
+            name: "More to be announced",
+            artists: [{ id: "1790054769", name: "More to be announced" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1895080290",
+            name: "More to be announced",
+            artists: [{ id: "1790054769", name: "More to be announced" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1895075995",
+            name: "More to be announced",
+            artists: [{ id: "1790054769", name: "More to be announced" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1895050543",
+            name: "VTSS",
+            artists: [{ id: "1532641807", name: "VTSS" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1895044508",
+            name: "Cassian",
+            artists: [{ id: "1536157928", name: "Cassian" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894325611",
+            name: "ANANDA",
+            artists: [{ id: "1594413732", name: "Ananda" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894323947",
+            name: "Faster Horses b2b Noise Mafia",
+            artists: [
+              { id: "1894324176", name: "Faster Horses b2b Noise Mafia" },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894322240",
+            name: "I Hate Models",
+            artists: [{ id: "1536125041", name: "I Hate Models" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894320213",
+            name: "Nico Moreno",
+            artists: [{ id: "1786599821", name: "Nico Moreno" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894318574",
+            name: "Tessuto",
+            artists: [
+              {
+                id: "1262710723",
+                name: "Tessuto",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16685444-IMG_0019.jpg",
+                instagram: "https://www.instagram.com/tessutocapslock/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894316927",
+            name: "Eli Iwasa",
+            artists: [
+              {
+                id: "1262722323",
+                name: "Eli Iwasa",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16687794-ELIIWASA2517.jpg",
+                instagram: "https://www.instagram.com/eliiwasa/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894315448",
+            name: "Victor Ruiz",
+            artists: [
+              {
+                id: "1262721537",
+                name: "Victor Ruiz",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16612733-large-VR_3.jpg",
+                instagram: "https://www.instagram.com/victorruizdj/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894313867",
+            name: "Ida Engberg",
+            artists: [
+              {
+                id: "1262720363",
+                name: "Ida Engberg",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16691695-Screenshot 2023-09-11 at 17.54.43.png",
+                instagram: "https://www.instagram.com/idaengberg/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894311785",
+            name: "Layton Giordani",
+            artists: [
+              {
+                id: "1262721167",
+                name: "Layton Giordani",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16612648-large-LG Press Shot 1.jpg",
+                instagram: "https://www.instagram.com/laytongiordani/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894310117",
+            name: "Reinier Zonneveld",
+            artists: [{ id: "1594456138", name: "Reinier Zonneveld" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894308546",
+            name: "Bigfett",
+            artists: [
+              {
+                id: "1262729169",
+                name: "Bigfett",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16688485-SAM_7358.jpg",
+                instagram: "https://www.instagram.com/bigfett_ofc/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894306160",
+            name: "Ruback",
+            artists: [{ id: "1894306424", name: "Ruback" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894304145",
+            name: "Kasia",
+            artists: [{ id: "1532641760", name: "Kasia" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894302246",
+            name: "Olympe",
+            artists: [
+              {
+                id: "1325260377",
+                name: "Olympe",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/31647671-IMG_7766.jpg",
+                instagram: "https://www.instagram.com/__olympe__/",
+                spotify:
+                  "https://open.spotify.com/artist/5uK8yW5uGiMKQH3YI8DztF?si=6Vzga4GMSXW4yUBu64SFTg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894300843",
+            name: "Miss Monique",
+            artists: [
+              {
+                id: "1262711176",
+                name: "Miss Monique",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16691398-Screenshot 2023-09-11 at 17.50.24.png",
+                instagram: "https://www.instagram.com/djmissmonique/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894297515",
+            name: "Vintage Culture",
+            artists: [
+              {
+                id: "1262706930",
+                name: "Vintage Culture",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607410-large-220723-185803-TML2022-0536-ALIVECOVERAGE.jpg",
+                instagram: "https://www.instagram.com/vintageculture/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894295953",
+            name: "Pedro Gariani b2b Etcetera",
+            artists: [{ id: "1894296162", name: "Pedro Gariani b2b Etcetera" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894293622",
+            name: "Jackson",
+            artists: [
+              {
+                id: "1262719608",
+                name: "Jackson",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16687494-image00017.jpeg",
+                instagram: "https://www.instagram.com/djjacksoon_/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894291877",
+            name: "Capoon",
+            artists: [
+              {
+                id: "1262716375",
+                name: "Capoon",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16612559-large-Capoon-83.jpg",
+                instagram: "https://www.instagram.com/capoonmusic/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894290458",
+            name: "Bora Uzer",
+            artists: [
+              {
+                id: "1262728844",
+                name: "Bora Uzer",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16691988-Screenshot 2023-09-11 at 17.57.43.png",
+                instagram: "https://www.instagram.com/borauzer/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894288767",
+            name: "Antdot B2B Maz",
+            artists: [
+              {
+                id: "1263280442",
+                name: "Antdot B2B Maz",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/54903637-DSC_1756.jpg",
+                instagram: "https://www.instagram.com/brunoantdot/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894286749",
+            name: "From house to Disco",
+            artists: [{ id: "1894286915", name: "From house to Disco" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894284825",
+            name: "Omoloko",
+            artists: [{ id: "1894285206", name: "Omoloko" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894281581",
+            name: "Bibi Seck",
+            artists: [
+              {
+                id: "1345812045",
+                name: "Bibi Seck",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/31816763-Bibi_Seck_Presspic_02.jpeg",
+                instagram: "https://www.instagram.com/bibisck/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894275283",
+            name: "Cashu",
+            artists: [{ id: "1894275409", name: "Cashu" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894273979",
+            name: "RHR",
+            artists: [
+              {
+                id: "1262719345",
+                name: "RHR",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16687450-RHR PRESS PHOTO.jpeg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894272334",
+            name: "Konstantin Sibold",
+            artists: [
+              {
+                id: "1286076797",
+                name: "Konstantin Sibold",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/20214229-image1.jpeg",
+                instagram: "https://www.instagram.com/konstantinsibold/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894270982",
+            name: "Mind Against",
+            artists: [
+              {
+                id: "1262728679",
+                name: "Mind Against",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/20969947-03_MindAgainst_0063version2092622V .jpg",
+                instagram: "https://www.instagram.com/mindagainst/",
+                spotify:
+                  "https://open.spotify.com/artist/48LWLoeY0dhwaiX1FRsn72?si=fTWJbQdNTP24WgP2cPkUig",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894269727",
+            name: "Absolem",
+            artists: [{ id: "1894269977", name: "Absolem" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894266975",
+            name: "V.falabella",
+            artists: [{ id: "1894267672", name: "V.falabella" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894265114",
+            name: "Becker",
+            artists: [{ id: "1894265430", name: "Becker" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894261743",
+            name: "Aura Vortex",
+            artists: [
+              {
+                id: "1262709735",
+                name: "Aura Vortex",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16685220-001.jpg",
+                instagram: "https://www.instagram.com/aura_vortex/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894260408",
+            name: "GMS",
+            artists: [{ id: "1894260657", name: "GMS" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894258819",
+            name: "Wrecked Machines",
+            artists: [{ id: "1594421429", name: "Wrecked Machines" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894256402",
+            name: "Blazy (STB)",
+            artists: [{ id: "1894256917", name: "Blazy (STB)" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894252130",
+            name: "Growling Machines",
+            artists: [{ id: "1894254001", name: "Growling Machines" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894250524",
+            name: "Vegas",
+            artists: [{ id: "1536133388", name: "Vegas" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894244746",
+            name: "Pontifexx",
+            artists: [
+              {
+                id: "1262714279",
+                name: "Pontifexx",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16686735-Pontifexx - Backstage.JPG",
+                instagram: "https://www.instagram.com/pontifexx/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894243477",
+            name: "Bruno Martini",
+            artists: [
+              {
+                id: "1262714104",
+                name: "Bruno Martini",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16686500-_01.JPEG",
+                instagram: "https://www.instagram.com/brunomartini/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894241568",
+            name: "KVSH",
+            artists: [
+              {
+                id: "1262707054",
+                name: "KVSH",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16684238-KVSH FLYER 5.jpg",
+                instagram: "https://www.instagram.com/kvsh/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894239689",
+            name: "Liu",
+            artists: [
+              {
+                id: "1262712880",
+                name: "Liu",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16691497-Screenshot 2023-09-11 at 17.51.32.png",
+                instagram: "https://www.instagram.com/liulive/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894237287",
+            name: "Lucas & Steve",
+            artists: [
+              {
+                id: "1318669661",
+                name: "Lucas & Steve",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/23126394-LUCAS-2_04_STEVE-5_08_COMBINATION_LR.jpg",
+                instagram: "https://www.instagram.com/lucasandsteve/",
+                spotify:
+                  "https://open.spotify.com/artist/5wwneIFdawNgQ7GvKK29Z3?si=NfdgbvBWQwSysrb0IQEDbA",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894233031",
+            name: "Third Party",
+            artists: [
+              {
+                id: "1536131096",
+                name: "Third Party",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/98153698-写真 6-28-24 午前3 53 31 (8).jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894228761",
+            name: "Matisse & Sadko",
+            artists: [
+              {
+                id: "1536181345",
+                name: "Matisse & Sadko",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/53520586-Mattisse-Sadko.jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894225915",
+            name: "Dubvision",
+            artists: [{ id: "1790220673", name: "Dubvision" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894222012",
+            name: "Fedde le grand",
+            artists: [{ id: "1889132242", name: "Fedde Le Grand" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894220122",
+            name: "Laidback Luke - Super YOU&ME",
+            artists: [
+              { id: "1894220322", name: "Laidback Luke - Super YOU&ME" },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894216060",
+            name: "Dang3r",
+            artists: [{ id: "1894217102", name: "Dang3r" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894213544",
+            name: "Sighter",
+            artists: [{ id: "1894213893", name: "Sighter" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894209108",
+            name: "Fernanda Pistelli",
+            artists: [
+              {
+                id: "1262709791",
+                name: "Fernanda Pistelli",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16685269-005.jpg",
+                instagram: "https://www.instagram.com/fepistelli/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894207211",
+            name: "Fabio Fusco",
+            artists: [{ id: "1536134330", name: "Fabio Fusco" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894204346",
+            name: "Phaxe",
+            artists: [{ id: "1894205007", name: "Phaxe" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894202578",
+            name: "Hi Profile",
+            artists: [{ id: "1539179641", name: "HI Profile" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894200909",
+            name: "Omiki",
+            artists: [{ id: "1894201211", name: "Omiki" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894199540",
+            name: "Blastoyz",
+            artists: [
+              {
+                id: "1262709431",
+                name: "Blastoyz",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607812-large-220722-210220-TML2022-_DSC6762-RS.jpg",
+                instagram: "https://www.instagram.com/blastoyz/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894196165",
+            name: "Psy Trance Mafia",
+            artists: [{ id: "1894196558", name: "Psy Trance Mafia" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894193054",
+            name: "Infected Mushroom",
+            artists: [{ id: "1894193360", name: "Infected Mushroom" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894188640",
+            name: "MANDY",
+            artists: [
+              {
+                id: "1262709306",
+                name: "MANDY",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607767-large-220722-154138-TML2022-153A9057-PW.jpg",
+                website: "https://www.djmandyofficial.be/",
+                facebook: "https://www.facebook.com/MANDYofficial/",
+                instagram: "https://www.instagram.com/mandyofficial_be/",
+                tiktok: "https://www.tiktok.com/@mandyofficialbe",
+                link: "DJ MANDY - https://www.link.com/channel/UCsFcbYXC0IGlDbV5FyQMjGw",
+                genero: "hardstyle",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894185428",
+            name: "Silvio Soul",
+            artists: [
+              {
+                id: "1262723063",
+                name: "Silvio Soul",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16688085-DSC01184 pb.png",
+                instagram: "https://www.instagram.com/silviosoul_/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894181794",
+            name: "Zac",
+            artists: [
+              {
+                id: "1262712011",
+                name: "ZAC",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16685872-ZAC Press Pics_1.jpg",
+                instagram: "https://www.instagram.com/dj.zac/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894176806",
+            name: "Bhaskar",
+            artists: [
+              {
+                id: "1262707617",
+                name: "Bhaskar",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16691225-Screenshot 2023-09-11 at 17.48.25.png",
+                instagram: "https://www.instagram.com/bhaskar/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894173799",
+            name: "Kevin di Serna",
+            artists: [{ id: "1894174085", name: "Kevin di Serna" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894171782",
+            name: "Mees Salomé",
+            artists: [{ id: "1536150698", name: "Mees Salomé" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894168187",
+            name: "Yotto",
+            artists: [{ id: "1536112504", name: "Yotto" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894164451",
+            name: "Fatsync b2b Malifoo",
+            artists: [{ id: "1894164854", name: "Fatsync b2b Malifoo" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894162436",
+            name: "GABE b2b Roddy Lima",
+            artists: [{ id: "1894162915", name: "GABE b2b Roddy Lima" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894155741",
+            name: "Tini Gessler",
+            artists: [{ id: "1894155972", name: "Tini Gessler" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894152696",
+            name: "Max Styler",
+            artists: [{ id: "1788214151", name: "Max Styler" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894149564",
+            name: "Wade",
+            artists: [{ id: "1894151086", name: "Wade" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894145218",
+            name: "Meduza",
+            artists: [
+              {
+                id: "1532641764",
+                name: "Meduza",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/53867332-230721-185343-TML23-R51_4326-KV.jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894141448",
+            name: "James Hype",
+            artists: [
+              {
+                id: "1532641835",
+                name: "James Hype",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/53922823-James-Hype-2024.jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894133821",
+            name: "Unfazed",
+            artists: [{ id: "1894134243", name: "Unfazed" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894130025",
+            name: "Curol",
+            artists: [
+              {
+                id: "1262703948",
+                name: "Curol",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16690946-Screenshot 2023-09-11 at 17.45.28.png",
+                instagram: "https://www.instagram.com/curol/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894124158",
+            name: "Arodes",
+            artists: [{ id: "1894124488", name: "Arodes" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894116566",
+            name: "Samm",
+            artists: [
+              {
+                id: "1532641820",
+                name: "Samm",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/58329700-Samm-1.jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894110227",
+            name: "Alok presents Something Else",
+            artists: [
+              { id: "1894111357", name: "Alok presents Something Else" },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894102820",
+            name: "MC Stretch",
+            artists: [
+              {
+                id: "1262706483",
+                name: "MC Stretch",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607334-large-220716-133038-TML2022-_Z9B1884-GU.jpg",
+                instagram: "https://www.instagram.com/stretchmc/",
+                spotify:
+                  "https://open.spotify.com/artist/6oIpax63yT9ajyekkcqv0L?si=PhO6GERYTZi1OtWVk8HaQQ",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894097260",
+            name: "ATKŌ",
+            artists: [{ id: "1894097691", name: "ATKŌ" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894095665",
+            name: "Aline Rocha",
+            artists: [
+              {
+                id: "1262707755",
+                name: "Aline Rocha",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16684467-IMG_3526.JPG",
+                instagram: "https://www.instagram.com/djalinerocha/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894090958",
+            name: "Yves V",
+            artists: [
+              {
+                id: "1262703149",
+                name: "Yves V",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16607201-large-220716-181745-TML2022-153A3461-PW(1).jpg",
+                instagram: "https://www.instagram.com/yves_v/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894087401",
+            name: "R3hab",
+            artists: [
+              {
+                id: "1361073186",
+                name: "R3HAB",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/53521174-R3hab-2024.jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894079522",
+            name: "Kölsch",
+            artists: [
+              {
+                id: "1262705600",
+                name: "Kölsch",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/32580036-Kolsch-LS.jpg",
+                instagram: "https://www.instagram.com/kolschofficial/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894073388",
+            name: "Lost Frequencies",
+            artists: [
+              {
+                id: "1262707391",
+                name: "Lost Frequencies",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/38719056-SME_LF_AST_press_09.jpg",
+                instagram: "https://www.instagram.com/lostfrequencies/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894069458",
+            name: "Steve Aoki",
+            artists: [
+              {
+                id: "1262706637",
+                name: "Steve Aoki",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607368-large-220723-002559-TML2022-DN102555-DN(3).jpg",
+                instagram: "https://www.instagram.com/steveaoki/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894065913",
+            name: "ALOK",
+            artists: [
+              {
+                id: "1262707253",
+                name: "ALOK",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16607466-large-Alok2.jpg",
+                instagram: "https://www.instagram.com/alok/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894061885",
+            name: "Alesso",
+            artists: [
+              {
+                id: "1264276009",
+                name: "Alesso",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/53504390-Alesso-2024.jpg",
+                instagram: "https://www.instagram.com/alesso/",
+                spotify:
+                  "https://open.spotify.com/artist/4AVFqumd2ogHFlRbKIjp1t?si=f7595CyiT_utyp4d_kCSfQ",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-12",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SUNDAY",
+            startTime: "2025-10-12 12:00:00-03:00",
+            endTime: "2025-10-12 12:01:00-03:00",
+          },
+          {
+            id: "1894050189",
+            name: "MC Stretch",
+            artists: [
+              {
+                id: "1262706483",
+                name: "MC Stretch",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607334-large-220716-133038-TML2022-_Z9B1884-GU.jpg",
+                instagram: "https://www.instagram.com/stretchmc/",
+                spotify:
+                  "https://open.spotify.com/artist/6oIpax63yT9ajyekkcqv0L?si=PhO6GERYTZi1OtWVk8HaQQ",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894045105",
+            name: "Malive",
+            artists: [{ id: "1894046042", name: "Malive" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894039489",
+            name: "Departamento",
+            artists: [{ id: "1894039721", name: "Departamento" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894035477",
+            name: "Cat Dealers",
+            artists: [
+              {
+                id: "1262703370",
+                name: "Cat Dealers",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607218-large-220716-143358-TML2022-R3CL9257-ALIVECOVERAGE.jpg",
+                instagram: "https://www.instagram.com/catdealers/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894030387",
+            name: "Henri PFR",
+            artists: [
+              {
+                id: "1262703272",
+                name: "Henri PFR",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16607212-large-Henri PFR - 2022 press pic 1.jpg",
+                instagram: "https://www.instagram.com/henripfr/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894026259",
+            name: "Kevin de Vries",
+            artists: [
+              {
+                id: "1264276664",
+                name: "Kevin de Vries",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/16693614-Screenshot 2023-09-11 at 18.12.24.png",
+                instagram: "https://www.instagram.com/kevindevriesmusic/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894022388",
+            name: "B Jones",
+            artists: [
+              {
+                id: "1262706986",
+                name: "B Jones",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607448-large-20210804_GuilleGS_Bjones_Ibiza_6000px_1.jpg",
+                instagram: "https://www.instagram.com/bjonesdj/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894017239",
+            name: "Da Tweekaz",
+            artists: [
+              {
+                id: "1262709216",
+                name: "Da Tweekaz",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607749-large-DaTweekaz_presspic2023_highres-1.jpg",
+                instagram: "https://www.instagram.com/datweekaz/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1894009407",
+            name: "Nicky Romero",
+            artists: [{ id: "1532622458", name: "Nicky Romero" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1893998668",
+            name: "ANNA b2b Vintage Culture",
+            artists: [
+              {
+                id: "1262706942",
+                name: "ANNA",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/96797451-ANNA-img-2025.jpg",
+                instagram: "https://www.instagram.com/djannaofficial/",
+              },
+              {
+                id: "1262706930",
+                name: "Vintage Culture",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607410-large-220723-185803-TML2022-0536-ALIVECOVERAGE.jpg",
+                instagram: "https://www.instagram.com/vintageculture/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1893992835",
+            name: "Axwell",
+            artists: [
+              {
+                id: "1593866644",
+                name: "Axwell",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/96830896-Axwell-img-2025.jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1893983534",
+            name: "Dimitri Vegas",
+            artists: [
+              {
+                id: "1292612863",
+                name: "Dimitri Vegas",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/19865482-1690727329871_6a4f3518-e93f-4253-b5ac-94bd20f24816.jpg_3750_9389690997246755927.jpg",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+          {
+            id: "1893971986",
+            name: "MC Stretch",
+            artists: [
+              {
+                id: "1262706483",
+                name: "MC Stretch",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607334-large-220716-133038-TML2022-_Z9B1884-GU.jpg",
+                instagram: "https://www.instagram.com/stretchmc/",
+                spotify:
+                  "https://open.spotify.com/artist/6oIpax63yT9ajyekkcqv0L?si=PhO6GERYTZi1OtWVk8HaQQ",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1893968311",
+            name: "Camila Jun",
+            artists: [{ id: "1893969378", name: "Camila Jun" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1893963594",
+            name: "Bruno Be b2b Kiko Franco",
+            artists: [{ id: "1893964424", name: "Bruno Be b2b Kiko Franco" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1893960457",
+            name: "Zerb",
+            artists: [{ id: "1536157227", name: "ZERB" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1893952293",
+            name: "Matisse & Sadko b2b Third Party",
+            artists: [
+              { id: "1786696916", name: "Matisse & sadko b2b Third Party" },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1893940414",
+            name: "Agents Of Time",
+            artists: [
+              {
+                id: "1302186739",
+                name: "Agents of Time",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/53681670-Agents-of-Time-2024.jpg",
+                instagram: "https://www.instagram.com/agentsoftime/",
+                spotify:
+                  "https://open.spotify.com/artist/6Jbyd4qzEtbFtswZP1o6Ht?si=5MhM5AwqRka8yiyCpSxlCQ",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1893933366",
+            name: "Nervo",
+            artists: [
+              {
+                id: "1262706956",
+                name: "NERVO",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16607441-large-220731-182539-TML2022-761A4930-JD.jpg",
+                instagram: "https://www.instagram.com/nervomusic/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1893927016",
+            name: "John Newman",
+            artists: [
+              {
+                id: "1262707466",
+                name: "John Newman",
+                image:
+                  "https://artist-lineup-cdn.tomorrowland.com/18850118-John Newman - 2023 press pic colour 2.jpg",
+                instagram: "https://www.instagram.com/johnnewmanmusic/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1893921209",
+            name: "Armin van Buuren",
+            artists: [
+              {
+                id: "1264274656",
+                name: "Armin van Buuren",
+                image:
+                  "https://artist-lineup-assets.b-cdn.net/16693055-Screenshot 2023-09-11 at 18.09.08.png",
+                instagram: "https://www.instagram.com/arminvanbuuren/",
+              },
+            ],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-10",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "FRIDAY",
+            startTime: "2025-10-10 12:00:00-03:00",
+            endTime: "2025-10-10 12:01:00-03:00",
+          },
+          {
+            id: "1894283120",
+            name: "Bárbara Boeing",
+            artists: [{ id: "1894283319", name: "Bárbara Boeing" }],
+            stage: { id: "1893731914", name: "LINE UP" },
+            date: "2025-10-11",
+            link: "https://www.youtube.com/embed/pg5foEhBW2c",
+            genero: "hardstyle",
+            day: "SATURDAY",
+            startTime: "2025-10-11 12:00:00-03:00",
+            endTime: "2025-10-11 12:01:00-03:00",
+          },
+        ];
+      }
+
+      function loadState() {
+        try {
+          const savedIndices = JSON.parse(
+            localStorage.getItem(INDEX_STORAGE_KEY)
+          ) || { ALL: 0, FRIDAY: 0, SATURDAY: 0, SUNDAY: 0 };
+          const savedVideos =
+            JSON.parse(localStorage.getItem(VIDEO_STORAGE_KEY)) ||
+            getInitialVideos();
+          const savedFilter = localStorage.getItem(CURRENT_DAY_FILTER) || "ALL";
+
+          state.currentIndices = savedIndices;
+          state.currentDayFilter = savedFilter;
+          state.videos =
+            Array.isArray(savedVideos) && savedVideos.length
+              ? savedVideos
+              : getInitialVideos();
+          state.currentFilteredVideos = filterVideosByDay(
+            state.currentDayFilter
+          );
+
+          const currentFilterIndex =
+            state.currentIndices[state.currentDayFilter];
+          if (currentFilterIndex >= state.currentFilteredVideos.length) {
+            state.currentIndices[state.currentDayFilter] = 0;
+          }
+        } catch (error) {
+          console.error("Erro ao carregar estado:", error);
+          state.currentIndices = { ALL: 0, FRIDAY: 0, SATURDAY: 0, SUNDAY: 0 };
+          state.currentDayFilter = "ALL";
+          state.videos = getInitialVideos();
+          state.currentFilteredVideos = filterVideosByDay("ALL");
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(VIDEO_STORAGE_KEY, JSON.stringify(state.videos));
+          localStorage.setItem(
+            INDEX_STORAGE_KEY,
+            JSON.stringify(state.currentIndices)
+          );
+          localStorage.setItem(CURRENT_DAY_FILTER, state.currentDayFilter);
+        } catch (error) {
+          console.error("Erro ao salvar estado:", error);
+        }
+      }
+
+      // Funções de exibição
+      function updateVideoDisplay() {
+        try {
+          const currentFilterIndex =
+            state.currentIndices[state.currentDayFilter];
+          const currentFilteredVideos = state.currentFilteredVideos;
+
+          if (!currentFilteredVideos.length) {
+            console.error("Nenhum vídeo disponível");
+            return;
+          }
+
+          if (currentFilterIndex >= currentFilteredVideos.length) {
+            state.currentIndices[state.currentDayFilter] = 0;
+            currentFilterIndex = 0;
+          }
+
+          const currentVideo = currentFilteredVideos[currentFilterIndex];
+          if (!currentVideo) {
+            console.error("Índice de vídeo inválido:", currentFilterIndex);
+            return;
+          }
+
+          if (elements.iframe) {
+            elements.iframe.src = currentVideo.link || "";
+          }
+
+          if (elements.videoInfo) {
+            elements.videoInfo.textContent =
+              currentVideo.name && currentVideo.genero
+                ? `${currentVideo.name} - ${currentVideo.genero}`
+                : "Informações do vídeo não disponíveis";
+          }
+
+          // Atualizar a imagem do artista
+          const artistImage = document.getElementById("artist-image");
+          const artistImageContainer = document.getElementById(
+            "artist-image-container"
+          );
+          if (currentVideo.artists?.[0]?.image) {
+            artistImage.src = currentVideo.artists[0].image;
+            artistImage.alt = currentVideo.name;
+            artistImageContainer.classList.remove("hidden");
+          } else {
+            artistImageContainer.classList.add("hidden");
+          }
+
+          if (elements.notaInput) {
+            elements.notaInput.value = currentVideo.nota || "";
+            elements.notaInput.focus();
+          }
+        } catch (error) {
+          console.error("Erro ao atualizar exibição do vídeo:", error);
+        }
+      }
+
+      function formatTime(dateTimeString) {
+        if (!dateTimeString) return "";
+        const date = new Date(dateTimeString);
+        return date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function createTableRow(video, filteredIndex) {
+        const tr = document.createElement("tr");
+        const artistImage = video.artists?.[0]?.image
+          ? `<img src="${video.artists[0].image}" alt="${video.name}" class="w-10 h-10 rounded-full object-cover">`
+          : '<div class="w-10 h-10 rounded-full bg-gray-600"></div>';
+
+        tr.innerHTML = `
+            <td class="p-2 flex items-center gap-2">
+              ${artistImage}
+              ${video.name || ""}
+            </td>
+            <td class="p-2">${video.nota || ""}</td>
+            <td class="p-2">${video.genero || ""}</td>
+            <td class="p-2">${video.stage?.name || ""}</td>
+            <td class="p-2">${formatTime(video.startTime)}</td>
+          `;
+
+        const editBtn = createEditButton(video);
+        const td = document.createElement("td");
+        td.className = "p-2";
+        td.appendChild(editBtn);
+        tr.appendChild(td);
+
+        tr.addEventListener("click", () => navigateToVideo(filteredIndex));
+
+        return tr;
+      }
+
+      function createMobileCard(video, filteredIndex) {
+        const artistImage = video.artists?.[0]?.image
+          ? `<img src="${video.artists[0].image}" alt="${video.name}" class="w-16 h-16 rounded-full object-cover">`
+          : '<div class="w-16 h-16 rounded-full bg-gray-600"></div>';
+
+        const card = document.createElement("div");
+        card.className = "card-item";
+        card.innerHTML = `
+            <div class="col-span-2 flex items-center gap-4">
+              ${artistImage}
+              <div>
+                <div class="font-bold">${video.name || ""}</div>
+                <div class="text-sm">${video.stage?.name || ""}</div>
+              </div>
+            </div>
+            <div class="card-label">Nota:</div>
+            <div class="card-value">${video.nota || ""}</div>
+            <div class="card-label">Gênero:</div>
+            <div class="card-value">${video.genero || ""}</div>
+            <div class="card-label">Horário:</div>
+            <div class="card-value">${formatTime(video.startTime)}</div>
+          `;
+
+        const editBtn = createEditButton(video);
+        editBtn.classList.add("col-span-2", "mx-auto", "mt-2");
+        card.appendChild(editBtn);
+
+        card.addEventListener("click", () => navigateToVideo(filteredIndex));
+
+        return card;
+      }
+
+      function createEditButton(video) {
+        const btn = document.createElement("button");
+        btn.textContent = "Editar";
+        btn.className =
+          "bg-cyan-400/20 hover:bg-cyan-300/20 text-white border border-cyan-300 px-2 py-1 rounded text-xs";
+
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          editVideoNote(video);
+        });
+
+        return btn;
+      }
+
+      function editVideoNote(video) {
+        const novaNota = prompt("Insira a nova nota para o vídeo:");
+        if (novaNota !== null && !isNaN(novaNota)) {
+          const notaNum = parseFloat(novaNota);
+          if (notaNum >= 0 && notaNum <= 10) {
+            video.nota = notaNum;
+            updateTable();
+            saveState();
+          } else {
+            showNotification("Atenção", "A nota deve estar entre 0 e 10.");
+          }
+        }
+      }
+
+      function updateTable() {
+        try {
+          if (elements.tabelaDesktop) elements.tabelaDesktop.innerHTML = "";
+          if (elements.tabelaMobile) elements.tabelaMobile.innerHTML = "";
+
+          state.currentFilteredVideos.forEach((video, filteredIndex) => {
+            if (elements.tabelaDesktop) {
+              elements.tabelaDesktop.appendChild(
+                createTableRow(video, filteredIndex)
+              );
+            }
+            if (elements.tabelaMobile) {
+              elements.tabelaMobile.appendChild(
+                createMobileCard(video, filteredIndex)
+              );
+            }
+          });
+        } catch (error) {
+          console.error("Erro ao atualizar tabela:", error);
+        }
+      }
+
+      function filterVideosByDay(day) {
+        if (day === "ALL") return [...state.videos];
+        return state.videos.filter((video) => video.day === day);
+      }
+
+      function filterByDay(day) {
+        state.currentDayFilter = day;
+        state.currentFilteredVideos = filterVideosByDay(day);
+
+        if (state.currentIndices[day] >= state.currentFilteredVideos.length) {
+          state.currentIndices[day] = 0;
+        }
+
+        updateTable();
+        updateVideoDisplay();
+        saveState();
+      }
+
+      function setupDayFilters() {
+        document.querySelectorAll(".day-filter-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const day = btn.dataset.day;
+            filterByDay(day);
+
+            document.querySelectorAll(".day-filter-btn").forEach((b) => {
+              b.classList.remove("bg-cyan-500/30", "border-cyan-400");
+              b.classList.add("bg-cyan-500/20", "border-cyan-300");
+            });
+
+            if (day !== "ALL") {
+              btn.classList.remove("bg-cyan-500/20", "border-cyan-300");
+              btn.classList.add("bg-cyan-500/30", "border-cyan-400");
+            }
+          });
+        });
+
+        // Aplicar filtro salvo
+        if (state.currentDayFilter) {
+          const btn = document.querySelector(
+            `.day-filter-btn[data-day="${state.currentDayFilter}"]`
+          );
+          if (btn) {
+            btn.classList.remove("bg-cyan-500/20", "border-cyan-300");
+            btn.classList.add("bg-cyan-500/30", "border-cyan-400");
+          }
+          filterByDay(state.currentDayFilter);
+        }
+      }
+
+      // Navegação
+      function navigateToVideo(filteredIndex) {
+        try {
+          state.currentIndices[state.currentDayFilter] = filteredIndex;
+          updateVideoDisplay();
+          saveState();
+        } catch (error) {
+          console.error("Erro ao navegar para vídeo:", error);
+        }
+      }
+
+      function nextVideo() {
+        try {
+          const currentFilter = state.currentDayFilter;
+          let currentIndex = state.currentIndices[currentFilter];
+          const currentVideo = state.currentFilteredVideos[currentIndex];
+
+          const nota = parseFloat(elements.notaInput.value);
+
+          if (isNaN(nota)) {
+            showNotification("Atenção", "Por favor, insira uma nota válida.");
+            return;
+          }
+
+          if (nota < 0 || nota > 10) {
+            showNotification("Atenção", "A nota deve estar entre 0 e 10.");
+            return;
+          }
+
+          // Atualizar nota no vídeo original
+          const originalVideo = state.videos.find(
+            (v) => v.id === currentVideo.id
+          );
+          if (originalVideo) {
+            originalVideo.nota = nota;
+          }
+
+          // Avançar para o próximo vídeo no filtro atual
+          currentIndex =
+            (currentIndex + 1) % state.currentFilteredVideos.length;
+          state.currentIndices[currentFilter] = currentIndex;
+
+          if (currentIndex === 0) {
+            showNotification(
+              "Parabéns",
+              "Você avaliou todos os vídeos deste dia!"
+            );
+          }
+
+          saveState();
+          updateVideoDisplay();
+          updateTable();
+        } catch (error) {
+          console.error("Erro ao avançar para próximo vídeo:", error);
+          showNotification(
+            "Erro",
+            "Ocorreu um erro ao processar. Por favor, tente novamente."
+          );
+        }
+      }
+
+      async function resetApp() {
+        const confirmed = await showConfirm(
+          "Confirmação",
+          "Tem certeza que deseja resetar todas as notas?"
+        );
+        if (confirmed) {
+          try {
+            state.currentIndices = {
+              ALL: 0,
+              FRIDAY: 0,
+              SATURDAY: 0,
+              SUNDAY: 0,
+            };
+            state.videos.forEach((video) => (video.nota = ""));
+            saveState();
+            updateTable();
+            updateVideoDisplay();
+            showNotification("Sucesso", "Todas as notas foram resetadas.");
+          } catch (error) {
+            console.error("Erro ao resetar aplicação:", error);
+            showNotification("Erro", "Ocorreu um erro ao resetar as notas.");
+          }
+        }
+      }
+
+      // Exportação
+      function exportTable() {
+        try {
+          const tabela = document.createElement("table");
+          tabela.classList.add("tabela-export");
+
+          // Cabeçalho
+          const cabecalho = tabela.createTHead();
+          const rowCabecalho = cabecalho.insertRow(0);
+          const headers = ["Artista", "Nota", "Gênero", "Palco", "Horário"];
+
+          headers.forEach((headerText) => {
+            const th = document.createElement("th");
+            th.innerHTML = `<strong>${headerText}</strong>`;
+            rowCabecalho.appendChild(th);
+          });
+
+          // Conteúdo
+          const corpoTabela = tabela.createTBody();
+          state.videos.forEach((video) => {
+            const tr = corpoTabela.insertRow();
+            [
+              video.name,
+              video.nota,
+              video.genero,
+              video.stage?.name,
+              formatTime(video.startTime),
+            ].forEach((value) => {
+              const td = tr.insertCell();
+              td.textContent =
+                value !== undefined && value !== null ? value : "";
+            });
+          });
+
+          document.body.appendChild(tabela);
+
+          html2canvas(tabela, {
+            backgroundColor: "#000000",
+            scale: 2,
+          })
+            .then(function (canvas) {
+              const link = document.createElement("a");
+              link.download = `avaliacoes_tml_${new Date()
+                .toISOString()
+                .slice(0, 10)}.png`;
+              link.href = canvas.toDataURL("image/png");
+              link.click();
+              document.body.removeChild(tabela);
+            })
+            .catch((error) => {
+              console.error("Erro ao exportar tabela:", error);
+              alert("Erro ao exportar tabela. Por favor, tente novamente.");
+            });
+        } catch (error) {
+          console.error("Erro na exportação:", error);
+        }
+      }
+
+      // Ordenação
+      function setupSorting() {
+        if (elements.headers.nota) {
+          elements.headers.nota.addEventListener("click", () => {
+            state.videos.sort((a, b) => (b.nota || 0) - (a.nota || 0));
+            state.currentFilteredVideos = filterVideosByDay(
+              state.currentDayFilter
+            );
+            updateTable();
+          });
+        }
+
+        if (elements.headers.palco) {
+          elements.headers.palco.addEventListener("click", () => {
+            state.videos.sort((a, b) =>
+              (a.stage?.name || "").localeCompare(b.stage?.name || "")
+            );
+            state.currentFilteredVideos = filterVideosByDay(
+              state.currentDayFilter
+            );
+            updateTable();
+          });
+        }
+
+        if (elements.headers.horario) {
+          elements.headers.horario.addEventListener("click", () => {
+            state.videos.sort(
+              (a, b) => new Date(a.startTime) - new Date(b.startTime)
+            );
+            state.currentFilteredVideos = filterVideosByDay(
+              state.currentDayFilter
+            );
+            updateTable();
+          });
+        }
+
+        if (elements.headers.style) {
+          elements.headers.style.addEventListener("click", () => {
+            state.videos.sort((a, b) =>
+              (a.genero || "").localeCompare(b.genero || "")
+            );
+            state.currentFilteredVideos = filterVideosByDay(
+              state.currentDayFilter
+            );
+            updateTable();
+          });
+        }
+
+        if (elements.headers.nome) {
+          elements.headers.nome.addEventListener("click", () => {
+            state.videos.sort((a, b) =>
+              (a.name || "").localeCompare(b.name || "")
+            );
+            state.currentFilteredVideos = filterVideosByDay(
+              state.currentDayFilter
+            );
+            updateTable();
+          });
+        }
+      }
+
+      // Configuração de eventos
+      function setupEventListeners() {
+        if (elements.proximoBtn) {
+          elements.proximoBtn.addEventListener("click", nextVideo);
+        }
+
+        if (elements.resetarBtn) {
+          elements.resetarBtn.addEventListener("click", resetApp);
+        }
+
+        if (elements.exportarBtn) {
+          elements.exportarBtn.addEventListener("click", exportTable);
+        }
+
+        if (elements.notaInput) {
+          elements.notaInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              nextVideo();
+            }
+          });
+        }
+
+        setupSorting();
+        setupDayFilters();
+      }
+
+      function showNotification(title, message, duration = 3000) {
+        const modal = document.getElementById("notification-modal");
+        const modalTitle = document.getElementById("notification-title");
+        const modalMessage = document.getElementById("notification-message");
+        const confirmBtn = document.getElementById("notification-confirm");
+
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modal.classList.remove("hidden");
+
+        confirmBtn.onclick = () => {
+          modal.classList.add("hidden");
+        };
+
+        setTimeout(() => {
+          if (!modal.classList.contains("hidden")) {
+            modal.classList.add("hidden");
+          }
+        }, duration);
+      }
+
+      function showConfirm(title, message) {
+        return new Promise((resolve) => {
+          const modal = document.getElementById("confirm-modal");
+          const modalTitle = document.getElementById("confirm-title");
+          const modalMessage = document.getElementById("confirm-message");
+          const cancelBtn = document.getElementById("confirm-cancel");
+          const okBtn = document.getElementById("confirm-ok");
+
+          modalTitle.textContent = title;
+          modalMessage.textContent = message;
+          modal.classList.remove("hidden");
+
+          cancelBtn.onclick = () => {
+            modal.classList.add("hidden");
+            resolve(false);
+          };
+
+          okBtn.onclick = () => {
+            modal.classList.add("hidden");
+            resolve(true);
+          };
+        });
+      }
+
+      function setupSharing() {
+        const shareBtn = document.getElementById("compartilhar");
+        const shareModal = document.getElementById("share-modal");
+        const shareCloseBtn = document.getElementById("share-close");
+
+        if (shareBtn && shareModal) {
+          shareBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            shareModal.classList.remove("hidden");
+          });
+
+          if (shareCloseBtn) {
+            shareCloseBtn.addEventListener("click", () => {
+              shareModal.classList.add("hidden");
+            });
+          }
+
+          shareModal.addEventListener("click", (e) => {
+            if (e.target === shareModal) {
+              shareModal.classList.add("hidden");
+            }
+          });
+
+          setupSocialSharing();
+        }
+      }
+
+      function setupSocialSharing() {
+        const currentVideo =
+          state.currentFilteredVideos[
+            state.currentIndices[state.currentDayFilter]
+          ];
+        const shareText = `Estou avaliando ${currentVideo.name} no Tomorrowland! Dê uma olhada:`;
+        const shareUrl = window.location.href;
+
+        // WhatsApp
+        const whatsappBtn = document.getElementById("share-whatsapp");
+        if (whatsappBtn) {
+          whatsappBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.open(
+              `https://wa.me/?text=${encodeURIComponent(
+                shareText + " " + shareUrl
+              )}`,
+              "_blank"
+            );
+          });
+        }
+
+        // Twitter
+        const twitterBtn = document.getElementById("share-twitter");
+        if (twitterBtn) {
+          twitterBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.open(
+              `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                shareText
+              )}&url=${encodeURIComponent(shareUrl)}`,
+              "_blank"
+            );
+          });
+        }
+
+        // Facebook
+        const facebookBtn = document.getElementById("share-facebook");
+        if (facebookBtn) {
+          facebookBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.open(
+              `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                shareUrl
+              )}&quote=${encodeURIComponent(shareText)}`,
+              "_blank"
+            );
+          });
+        }
+
+        // Copiar link
+        const copyLinkBtn = document.getElementById("copy-link");
+        if (copyLinkBtn) {
+          copyLinkBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            try {
+              await navigator.clipboard.writeText(shareUrl);
+              showNotification(
+                "Sucesso",
+                "Link copiado para a área de transferência!"
+              );
+              document.getElementById("share-modal").classList.add("hidden");
+            } catch (err) {
+              console.error("Falha ao copiar link:", err);
+              showNotification("Erro", "Não foi possível copiar o link.");
+            }
+          });
+        }
+      }
+
+      function init() {
+        try {
+          loadState();
+          state.currentFilteredVideos = filterVideosByDay(
+            state.currentDayFilter
+          );
+          updateVideoDisplay();
+          setupEventListeners();
+          updateTable();
+          setupSharing();
+          setupDayFilters();
+        } catch (error) {
+          console.error("Erro na inicialização:", error);
+          alert(
+            "Ocorreu um erro ao inicializar a aplicação. Por favor, recarregue a página."
+          );
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+
+    <!-- Modal de Notificação -->
+    <div
+      id="notification-modal"
+      class="fixed inset-0 flex items-center justify-center z-50 hidden"
+    >
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div
+        class="relative bg-gradient-to-br from-cyan-900/90 to-blue-900/90 border border-cyan-400 rounded-xl p-6 max-w-md w-full mx-4 shadow-[0_0_30px_rgba(0,255,255,0.5)]"
+      >
+        <h3
+          id="notification-title"
+          class="text-2xl font-bold mb-4 text-cyan-300"
+        ></h3>
+        <p id="notification-message" class="mb-6"></p>
+        <div class="flex justify-end">
+          <button
+            id="notification-confirm"
+            class="bg-cyan-500/20 hover:bg-cyan-400/30 text-white border border-cyan-300 px-4 py-2 rounded-lg shadow-lg backdrop-blur-md transition"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div
+      id="confirm-modal"
+      class="fixed inset-0 flex items-center justify-center z-50 hidden"
+    >
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div
+        class="relative bg-gradient-to-br from-cyan-900/90 to-blue-900/90 border border-cyan-400 rounded-xl p-6 max-w-md w-full mx-4 shadow-[0_0_30px_rgba(0,255,255,0.5)]"
+      >
+        <h3 id="confirm-title" class="text-2xl font-bold mb-4 text-cyan-300">
+          Confirmação
+        </h3>
+        <p id="confirm-message" class="mb-6"></p>
+        <div class="flex justify-end gap-4">
+          <button
+            id="confirm-cancel"
+            class="bg-red-500/20 hover:bg-red-400/30 text-white border border-red-300 px-4 py-2 rounded-lg shadow-lg backdrop-blur-md transition"
+          >
+            Cancelar
+          </button>
+          <button
+            id="confirm-ok"
+            class="bg-cyan-500/20 hover:bg-cyan-400/30 text-white border border-cyan-300 px-4 py-2 rounded-lg shadow-lg backdrop-blur-md transition"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Compartilhamento -->
+    <div
+      id="share-modal"
+      class="fixed inset-0 flex items-center justify-center z-50 hidden"
+    >
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div
+        class="relative bg-gradient-to-br from-cyan-900/90 to-blue-900/90 border border-cyan-400 rounded-xl p-6 max-w-md w-full mx-4 shadow-[0_0_30px_rgba(0,255,255,0.5)]"
+      >
+        <h3 class="text-2xl font-bold mb-4 text-cyan-300">Compartilhar</h3>
+        <div class="flex flex-col gap-2">
+          <a
+            id="share-whatsapp"
+            href="#"
+            class="bg-green-500/20 hover:bg-green-400/30 text-white px-4 py-3 rounded-lg flex items-center gap-3"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+              alt="WhatsApp"
+              class="h-6 w-6"
+            />
+            WhatsApp
+          </a>
+          <a
+            id="share-twitter"
+            href="#"
+            class="bg-blue-500/20 hover:bg-blue-400/30 text-white px-4 py-3 rounded-lg flex items-center gap-3"
+          >
+            <img
+              src="https://img.freepik.com/vetores-premium/novo-vector-twitter-x-logo-branco-em-fundo-preto_744381-866.jpg"
+              alt="Twitter"
+              class="h-6 w-6"
+            />
+            X
+          </a>
+          <a
+            id="share-facebook"
+            href="#"
+            class="bg-blue-700/20 hover:bg-blue-600/30 text-white px-4 py-3 rounded-lg flex items-center gap-3"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
+              alt="Facebook"
+              class="h-6 w-6"
+            />
+            Facebook
+          </a>
+          <button
+            id="copy-link"
+            class="bg-cyan-500/20 hover:bg-cyan-400/30 text-white px-4 py-3 rounded-lg flex items-center gap-3"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+              />
+            </svg>
+            Copiar Link
+          </button>
+        </div>
+        <div class="flex justify-end mt-4">
+          <button
+            id="share-close"
+            class="bg-red-500/20 hover:bg-red-400/30 text-white border border-red-300 px-4 py-2 rounded-lg shadow-lg backdrop-blur-md transition"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
